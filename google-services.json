@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "494817584626",
+    "project_id": "khyora-19af8",
+    "storage_bucket": "khyora-19af8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494817584626:android:fdd07f1668114465df376b",
+        "android_client_info": {
+          "package_name": "com.khyora.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL3AuMiSvfST4kM_YfGPqDDXmVfORVsfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
