@@ -36,6 +36,34 @@ const TEXT_MUTED = '#91A097';
 const BORDER = 'rgba(31, 90, 61, 0.10)';
 
 const CONTENT_HORIZONTAL_PADDING = 20;
+const QUICK_ACTION_ROW_HEIGHT = 128;
+
+const QUICK_ACTIONS = [
+  {
+    icon: 'scan-outline' as const,
+    label: 'Scan New Pad',
+    subtitle: 'Pad health scan',
+    route: '/scan/camera' as const,
+  },
+  {
+    icon: 'heart-outline' as const,
+    label: 'Health Analysis',
+    subtitle: 'View insights',
+    route: '/(tabs)/analysis' as const,
+  },
+  {
+    icon: 'calendar-outline' as const,
+    label: 'Period Tracker',
+    subtitle: 'Log & calendar',
+    route: '/(tabs)/period' as const,
+  },
+  {
+    icon: 'bar-chart-outline' as const,
+    label: 'View Reports',
+    subtitle: 'Your trends',
+    route: '/reports' as const,
+  },
+];
 
 function getCycleCenterCopy(prediction: CyclePrediction) {
   if (!prediction.hasData || prediction.daysUntilNextPeriod === null) {
@@ -66,9 +94,10 @@ function getCycleCenterCopy(prediction: CyclePrediction) {
 export default function HomeScreen() {
   const { profile } = useAuth();
   const router = useRouter();
-  const { width: windowWidth } = useWindowDimensions();
-  const quickActionWidth = (windowWidth - CONTENT_HORIZONTAL_PADDING * 2) / 2;
+  const { width: screenWidth } = useWindowDimensions();
   const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const quickGridWidth = screenWidth - CONTENT_HORIZONTAL_PADDING * 2;
+  const quickCellWidth = quickGridWidth / 2;
 
   const {
     prediction,
@@ -207,39 +236,41 @@ export default function HomeScreen() {
           )}
 
           <Text style={styles.sectionHeading}>Quick Actions</Text>
-          <View style={styles.quickGridFrame}>
-            <View style={styles.grid}>
+          <View style={[styles.quickGridFrame, { width: quickGridWidth }]}>
+            <View style={[styles.quickTableRow, { width: quickGridWidth }]}>
               <QuickAction
-                width={quickActionWidth}
-                icon="scan-outline"
-                label="Scan New Pad"
-                subtitle="Pad health scan"
-                showRightDivider
-                showBottomDivider
-                onPress={() => router.push('/scan/camera')}
+                width={quickCellWidth}
+                icon={QUICK_ACTIONS[0].icon}
+                label={QUICK_ACTIONS[0].label}
+                subtitle={QUICK_ACTIONS[0].subtitle}
+                showRightBorder
+                showBottomBorder
+                onPress={() => router.push(QUICK_ACTIONS[0].route)}
               />
               <QuickAction
-                width={quickActionWidth}
-                icon="heart-outline"
-                label="Health Analysis"
-                subtitle="View insights"
-                showBottomDivider
-                onPress={() => router.push('/(tabs)/analysis')}
+                width={quickCellWidth}
+                icon={QUICK_ACTIONS[1].icon}
+                label={QUICK_ACTIONS[1].label}
+                subtitle={QUICK_ACTIONS[1].subtitle}
+                showBottomBorder
+                onPress={() => router.push(QUICK_ACTIONS[1].route)}
+              />
+            </View>
+            <View style={[styles.quickTableRow, { width: quickGridWidth }]}>
+              <QuickAction
+                width={quickCellWidth}
+                icon={QUICK_ACTIONS[2].icon}
+                label={QUICK_ACTIONS[2].label}
+                subtitle={QUICK_ACTIONS[2].subtitle}
+                showRightBorder
+                onPress={() => router.push(QUICK_ACTIONS[2].route)}
               />
               <QuickAction
-                width={quickActionWidth}
-                icon="calendar-outline"
-                label="Period Tracker"
-                subtitle="Log & calendar"
-                showRightDivider
-                onPress={() => router.push('/(tabs)/period')}
-              />
-              <QuickAction
-                width={quickActionWidth}
-                icon="bar-chart-outline"
-                label="View Reports"
-                subtitle="Your trends"
-                onPress={() => router.push('/reports')}
+                width={quickCellWidth}
+                icon={QUICK_ACTIONS[3].icon}
+                label={QUICK_ACTIONS[3].label}
+                subtitle={QUICK_ACTIONS[3].subtitle}
+                onPress={() => router.push(QUICK_ACTIONS[3].route)}
               />
             </View>
           </View>
@@ -267,32 +298,35 @@ function QuickAction({
   icon,
   label,
   subtitle,
-  showRightDivider,
-  showBottomDivider,
+  showRightBorder,
+  showBottomBorder,
   onPress,
 }: {
   width: number;
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   subtitle: string;
-  showRightDivider?: boolean;
-  showBottomDivider?: boolean;
+  showRightBorder?: boolean;
+  showBottomBorder?: boolean;
   onPress: () => void;
 }) {
   return (
     <View
       style={[
-        styles.actionCell,
+        styles.actionCellWrap,
         { width },
-        showRightDivider && styles.actionCellRightLine,
-        showBottomDivider && styles.actionCellBottomLine,
+        showRightBorder && styles.actionCellRightLine,
+        showBottomBorder && styles.actionCellBottomLine,
       ]}
     >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
         onPress={onPress}
-        style={({ pressed }) => [styles.actionCard, pressed && styles.actionPressed]}
+        style={({ pressed }) => [
+          styles.actionCellPressable,
+          pressed && styles.actionPressed,
+        ]}
       >
         <View style={styles.actionIconWrap}>
           <Ionicons name={icon} size={22} color={BRAND_PRIMARY} />
@@ -329,8 +363,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: CONTENT_HORIZONTAL_PADDING,
-    paddingBottom: 120,
+    paddingBottom: 132,
     paddingTop: 8,
+    alignItems: 'stretch',
   },
   headerRow: {
     flexDirection: 'row',
@@ -472,6 +507,7 @@ const styles = StyleSheet.create({
     color: BRAND_DARK,
   },
   quickGridFrame: {
+    alignSelf: 'center',
     borderRadius: 22,
     borderWidth: 1,
     borderColor: BORDER,
@@ -483,32 +519,33 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
-  grid: {
+  quickTableRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    height: QUICK_ACTION_ROW_HEIGHT,
   },
-  actionCell: {
-    minWidth: 0,
-  },
-  actionCellRightLine: {
-    borderRightWidth: 1,
-    borderRightColor: BORDER,
-  },
-  actionCellBottomLine: {
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
-  },
-  actionCard: {
+  actionCellWrap: {
+    height: QUICK_ACTION_ROW_HEIGHT,
     backgroundColor: CARD,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    minHeight: 124,
+  },
+  actionCellPressable: {
+    width: '100%',
+    height: '100%',
+    paddingHorizontal: 8,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  actionCellRightLine: {
+    borderRightWidth: StyleSheet.hairlineWidth + 1,
+    borderRightColor: BORDER,
+  },
+  actionCellBottomLine: {
+    borderBottomWidth: StyleSheet.hairlineWidth + 1,
+    borderBottomColor: BORDER,
+  },
   actionPressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.99 }],
+    backgroundColor: SOFT_GREEN,
+    opacity: 0.96,
   },
   actionIconWrap: {
     width: 44,
@@ -522,14 +559,20 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontFamily: fonts.accent,
     fontSize: 14,
+    lineHeight: 18,
     color: BRAND_DARK,
     textAlign: 'center',
+    width: '100%',
+    paddingHorizontal: 2,
   },
   actionSubtitle: {
     marginTop: 4,
     fontFamily: fonts.body,
     fontSize: 11,
+    lineHeight: 14,
     color: TEXT_MUTED,
     textAlign: 'center',
+    width: '100%',
+    paddingHorizontal: 2,
   },
 });
